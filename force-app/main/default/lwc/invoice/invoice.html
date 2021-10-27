@@ -1,0 +1,18 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <lightning-card title="Invoice" icon-name="standard:account">
+        <div class="slds-m-around_medium">
+            <lightning-datatable key-field="Id" data={invoiceProducts} columns={productColumns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+
+    <div class="slds-m-around_medium" if:false={orderPlaced}>
+        <lightning-button variant="brand" label="Place Order" onclick={placeOrder}> </lightning-button>
+    </div>
+
+    <div class="slds-m-around_medium" if:true={orderPlaced}>
+        <lightning-button variant="brand" label="Go back to orders" onclick={backToOrders}> </lightning-button>
+    </div>
+</template>

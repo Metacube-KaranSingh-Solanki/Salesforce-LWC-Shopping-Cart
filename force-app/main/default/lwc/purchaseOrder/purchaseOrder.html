@@ -1,0 +1,16 @@
+<!-- sldsValidatorIgnore -->
+<template>
+
+    <lightning-card title="My Orders" icon-name="standard:account" if:false={showProduct}>
+        <div class="slds-m-around_medium">
+            <lightning-datatable key-field="Id" data={orders.data} columns={orderColumns} hide-checkbox-column="true">
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+    <div class="slds-m-around_medium" if:false={showProduct}>
+        <lightning-button variant="brand" label="New Order" onclick={showProducts}> </lightning-button>
+    </div>
+
+    <c-products if:true={showProduct}></c-products>
+
+</template>

@@ -1,0 +1,28 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <div if:false={invoiceStage}>
+        <div class="slds-m-around_medium">
+            <lightning-button variant="brand" label="Add to Cart" onclick={addToCart}> </lightning-button>
+        </div>
+
+        <lightning-input value={searchKey} type="search" onchange={searchProducts} class="slds-m-bottom_small"
+            placeholder="Start typing...">
+        </lightning-input>
+
+        <lightning-card title="Available Products" icon-name="standard:account" if:true={products.data}>
+            <div class="slds-m-around_medium">
+                <lightning-datatable key-field="Id" data={visibleProducts} columns={productColumns}>
+                </lightning-datatable>
+            </div>
+            <div slot="footer" class="slds-var-m-vertical_medium">
+                <c-pagination records={products.data} onupdate={updateProductHandler} record-size="5"
+                    if:true={products}></c-pagination>
+            </div>
+        </lightning-card>
+
+        <br>
+    </div>
+    <c-cart if:true={selectedProducts} cart-products={selectedProducts} oninvoicestagereached={activateInvoiceStage}
+        onupdate={updateHandler} ondelete={deleteHandler}>
+    </c-cart>
+</template>

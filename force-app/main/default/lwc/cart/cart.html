@@ -1,0 +1,21 @@
+<!-- sldsValidatorIgnore -->
+<template>
+
+    <div if:false={showInvoice}>
+        <lightning-card title="My Cart" icon-name="standard:account">
+            <div class="slds-m-around_medium">
+                <lightning-datatable key-field="Id" data={cartProducts} columns={productColumns}
+                    oncellchange={handleOnCellChange} draft-values={draftValues} hide-checkbox-column="true"
+                    onrowaction={handleRowActions} onsave={handleSave}>
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+
+        <div class="slds-m-around_medium">
+            <lightning-button variant="brand" label="Check Out" onclick={checkOut}> </lightning-button>
+        </div>
+
+    </div>
+    <c-invoice invoice-products={cartProducts} if:true={showInvoice}></c-invoice>
+
+</template>
