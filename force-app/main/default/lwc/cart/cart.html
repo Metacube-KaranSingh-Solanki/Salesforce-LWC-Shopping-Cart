@@ -6,7 +6,7 @@
             <div class="slds-m-around_medium">
                 <lightning-datatable key-field="Id" data={cartProducts} columns={productColumns}
                     oncellchange={handleOnCellChange} draft-values={draftValues} hide-checkbox-column="true"
-                    onrowaction={handleRowActions} onsave={handleSave}>
+                    onrowaction={handleRowActions} onsave={handleSave} errors={errors}>
                 </lightning-datatable>
             </div>
         </lightning-card>

@@ -2,7 +2,7 @@ import { LightningElement, api, track } from 'lwc';
 
 export default class Cart extends LightningElement {
     @api cartProducts;
-    @track errors;
+    @track errors = {};
     @track showInvoice = false;
 
     draftValues = [];
@@ -36,13 +36,42 @@ export default class Cart extends LightningElement {
     ];
 
     handleOnCellChange(event) {
-        let requestedQuantity = event.detail.draftValues[0].Quantity;
-        let productId = event.detail.draftValues[0].Id;
-        const theProduct = this.cartProducts.filter(element => element.Id == productId)[0];
+        const rowId = event.detail.draftValues[0].Id
+        const draftQuantity = parseInt(event.detail.draftValues[0].Quantity)
+        const availableQuantity = this.cartProducts.filter(e => e.Id === rowId)[0].TempQuantity;
 
-        if (theProduct.TempQuantity < requestedQuantity) {
-            alert('Not available');
+        if (draftQuantity <= 0 || draftQuantity > availableQuantity) {
+            this.triggerError(rowId);
+        } else if (draftQuantity > 0 && draftQuantity <= availableQuantity && this.errors.rows && this.errors.rows[rowId]) {
+            this.removeRowError(rowId)
         }
+    }
+
+    removeRowError(rowId) {
+        if (rowId) {
+            delete this.errors.rows[rowId];
+            if (this.errors.rows)
+                this.errors = {}
+        }
+    }
+
+    triggerError(rowId) {
+        const _errors = {
+            rows: {
+                ...this.errors.rows,
+                [rowId]: {
+                    title: 'Quantity should be greater than zero or may not available',
+                    messages: ['Enter a valid Quantity.'],
+                    fieldNames: ['Quantity']
+                }
+            },
+            table: {
+                title: 'Your entry cannot be saved. Fix the errors and try again.',
+                messages: ['Error on Quantity, Enter valid quantity']
+            }
+        };
+
+        this.errors = _errors;
     }
 
     checkOut() {
@@ -55,45 +84,46 @@ export default class Cart extends LightningElement {
 
     handleRowActions(event) {
         if (event.detail.action.Name === 'Delete') {
-            var local = [...this.cartProducts];
-            local.splice(local.findIndex(a => a.Id === event.detail.row.Id), 1)
-            this.cartProducts = local
-            this.deleteProduct(event.detail.row.Id, event.detail.row.TempQuantity);
+            let row = event.detail.row
+            var loc = [...this.cartProducts];
+            loc.splice(loc.findIndex(a => a.Id === row.Id), 1)
+            this.cartProducts = loc
+            this.dispatchEvent(new CustomEvent('remove', {
+                detail: {
+                    record: row,
+                    selectedProducts: this.cartProducts
+                }
+            }))
         }
     }
 
     handleSave(event) {
-        this.draftValues = event.detail.draftValues
-        //Id, Quantity
+        if (!this.errors.rows) {
+            this.errors = {}
 
-        var cartProductsClone = JSON.parse(JSON.stringify(this.cartProducts));
-        cartProductsClone.forEach(element => {
-            var result = this.draftValues.filter(e => e.Id === element.Id)[0]
-            if (result) {
-                element.Quantity = result.Quantity
-                element.AvailableQuantity = element.TempQuantity - element.Quantity
-                element.LineTotal = element.Price * element.Quantity;
-            }
-        });
+            this.draftValues = event.detail.draftValues
+            //Id, Quantity
 
-        this.cartProducts = cartProductsClone
-        this.draftValues = []
-        this.updateProducts()
+            var cartProductsClone = JSON.parse(JSON.stringify(this.cartProducts));
+            cartProductsClone.forEach(element => {
+                var result = this.draftValues.filter(e => e.Id === element.Id)[0]
+                if (result) {
+                    element.Quantity = result.Quantity
+                    element.AvailableQuantity = element.TempQuantity - element.Quantity
+                    element.LineTotal = element.Price * element.Quantity;
+                }
+            });
+
+            this.cartProducts = cartProductsClone
+            this.draftValues = []
+            this.updateProducts()
+        }
     }
 
     updateProducts() {
         this.dispatchEvent(new CustomEvent('update', {
             detail: {
                 records: this.cartProducts
-            }
-        }))
-    }
-
-    deleteProduct(productIdToDelete, totalQuantityOfProduct) {
-        this.dispatchEvent(new CustomEvent('delete', {
-            detail: {
-                productId: productIdToDelete,
-                totalQuantity: totalQuantityOfProduct
             }
         }))
     }

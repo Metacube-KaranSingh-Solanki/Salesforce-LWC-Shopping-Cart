@@ -40,43 +40,35 @@ export default class Products extends LightningElement {
             TempQuantity: obj.AvailableQuantity__c
         }))
 
-        if (this.selectedProducts) {
-            let temp1 = [...this.selectedProducts]
-            temp1.forEach(element => {
-                var result = tempSelected.filter(e => e.Id === element.Id)[0]
-                console.log(result)
-                if (result) {
-                    result.Quantity += 1
-                    result.AvailableQuantity__c = element.AvailableQuantity__c - 1
-                } else {
-                    tempSelected.push(element);
-                }
+        tempSelected = tempSelected.filter(ev => {
+            if (ev.AvailableQuantity >= 0) {
+                return true
+            }
+        })
 
+        if (this.selectedProducts && this.selectedProducts.length > 0) {
+            let tempClone = [...this.selectedProducts]
+            tempSelected = tempClone.concat(tempSelected) //Duplicate values present
+            var selectedClone = []
+            tempSelected.forEach(element => {
+                let result = tempSelected.filter(ev => element.Id == ev.Id) //count of duplicate
+                let isPresent = selectedClone.some(ev => element.Id == ev.Id)
+
+                if (result.length > 1 && !isPresent) {
+                    element.Quantity = result[0].Quantity + result[1].Quantity;
+                    element.AvailableQuantity = element.TempQuantity - element.Quantity
+                    element.LineTotal = element.Quantity * element.Price
+                    selectedClone.push(element)
+                } else if (result.length == 1 && !isPresent) {
+                    selectedClone.push(element)
+                }
             })
-            console.log(tempSelected)
+            this.selectedProducts = selectedClone
+            this.updateTotalOrder()
+
+        } else if (tempSelected.length > 0) {
             this.selectedProducts = tempSelected
-            //total order update
-            let temp = JSON.parse(JSON.stringify(this.products.data))
-            temp.forEach(element => {
-                var result = this.selectedProducts.filter(e => e.Id === element.Id)[0]
-                if (result) {
-                    element.AvailableQuantity__c = result.AvailableQuantity
-                }
-            })
-            this.products.data = temp
-
-        } else {
-            this.selectedProducts = tempSelected
-            this.isShowCart = true
-            let temp = JSON.parse(JSON.stringify(this.products.data))
-            temp.forEach(element => {
-                var result = this.selectedProducts.filter(e => e.Id === element.Id)[0]
-                if (result) {
-                    element.AvailableQuantity__c = result.AvailableQuantity
-                }
-            })
-            this.products.data = temp
-
+            this.updateTotalOrder()
         }
     }
 
@@ -102,17 +94,28 @@ export default class Products extends LightningElement {
     }
 
     deleteHandler(event) {
-        let clone = JSON.parse(JSON.stringify(this.products.data))
-        clone.forEach(element => {
-            if (element.Id == event.detail.productId) {
-                //alert(JSON.stringify(event.detail.totalQuantity));
-                //console.log('AQ Before:', element.AvailableQuantity__c, element.Name);
-                element.AvailableQuantity__c = event.detail.totalQuantity;
-                //console.log('AQ After:', element.AvailableQuantity__c, element.Name);
+        var row = event.detail.record
+        this.selectedProducts = event.detail.selectedProducts
+
+        let temp = [...this.products.data]
+        temp.forEach(element => {
+            if (element.Id === row.Id) {
+                element.AvailableQuantity__c = row.TempQuantity
+                return;
             }
         })
-        this.products = [];
-        this.products.data = clone;
-        console.log(JSON.stringify(this.products.data));
+        this.products = []
+        this.products.data = temp
+    }
+
+    updateTotalOrder() {
+        let temp = JSON.parse(JSON.stringify(this.products.data))
+        temp.forEach(element => {
+            var result = this.selectedProducts.filter(e => e.Id === element.Id)[0]
+            if (result) {
+                element.AvailableQuantity__c = result.AvailableQuantity
+            }
+        })
+        this.products.data = temp
     }
 }

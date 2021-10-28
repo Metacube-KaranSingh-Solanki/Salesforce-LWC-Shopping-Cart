@@ -31,15 +31,18 @@ public with sharing class ShoppingCartController {
         PurchaseOrder__c order = new PurchaseOrder__c(User__c=UserInfo.getUserId(), Status__c='Processing');
         insert order;
 
+        List<Product2> productsToUpdate = new List<Product2>();
+
         List<PurchaseOrderLineItem__c> poli = new List<PurchaseOrderLineItem__c>();
         for (InvoiceProduct product: products) {
             poli.add(new PurchaseOrderLineItem__c(Product__c=product.Id, PurchaseOrder__c=order.Id, Quantity__c=product.Quantity));
+            productsToUpdate.add(new Product2(Id=product.Id, AvailableQuantity__c=product.AvailableQuantity));
         }
-        System.debug(poli.size());
+        
         insert poli;
+        update productsToUpdate;
 
         return order;
-
     }
 
 }

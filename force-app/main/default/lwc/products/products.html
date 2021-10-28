@@ -23,6 +23,6 @@
         <br>
     </div>
     <c-cart if:true={selectedProducts} cart-products={selectedProducts} oninvoicestagereached={activateInvoiceStage}
-        onupdate={updateHandler} ondelete={deleteHandler}>
+        onupdate={updateHandler} onremove={deleteHandler}>
     </c-cart>
 </template>
