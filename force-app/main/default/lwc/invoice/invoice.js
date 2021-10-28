@@ -41,6 +41,6 @@ export default class Invoice extends LightningElement {
     }
 
     backToOrders() {
-        // Code to go to the homepage
+        eval("$A.get('e.force:refreshView').fire();");
     }
 }

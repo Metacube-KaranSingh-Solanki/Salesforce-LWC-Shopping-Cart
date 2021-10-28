@@ -15,8 +15,9 @@
                 </lightning-datatable>
             </div>
             <div slot="footer" class="slds-var-m-vertical_medium">
-                <c-pagination records={products.data} onupdate={updateProductHandler} record-size="5"
-                    if:true={products}></c-pagination>
+                <c-pagination records={products.data} onupdate={updateProductHandler} record-size="10"
+                    if:true={products}>
+                </c-pagination>
             </div>
         </lightning-card>
 
