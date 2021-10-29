@@ -19,7 +19,6 @@ public with sharing class ShoppingCartController {
     public static List<Product2> searchProductsByKey(String key){
         key = '%' + key + '%';
         String query = 'SELECT Id, Name, ProductCode, Price__c, AvailableQuantity__c FROM Product2 WHERE Name LIKE \'' + key + '\'';
-        System.debug(query);
         return (List<Product2>)Database.query(query);
     }
  

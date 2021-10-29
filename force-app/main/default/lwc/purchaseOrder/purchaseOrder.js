@@ -10,7 +10,12 @@ export default class PurchaseOrder extends LightningElement {
     orderColumns = [
         { label: 'PO Id', fieldName: 'Name' },
         { label: 'Status', fieldName: 'Status__c' },
-        { label: 'Order Total', fieldName: 'OrderTotal__c' }
+        {
+            label: 'Order Total',
+            fieldName: 'OrderTotal__c',
+            type: 'currency',
+            typeAttributes: { currencyCode: 'EUR', step: '0.001' },
+        }
     ];
 
     showProducts() {

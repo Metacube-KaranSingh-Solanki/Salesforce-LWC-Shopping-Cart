@@ -4,11 +4,11 @@ import searchProductsByKey from '@salesforce/apex/ShoppingCartController.searchP
 
 export default class Products extends LightningElement {
 
-    visibleProducts;
+    visibleProducts;                // This will be set by pagination child component (updatepage event)
 
     @track searchKey = '';
     @track selectedProducts;
-    @track invoiceStage = false;    // This will be set by event from invoice component
+    @track invoiceStage = false;    // This will be set by invoice child component (invoicestagereached event)
 
     productColumns = [
         { label: 'Name', fieldName: 'Name' },
@@ -40,6 +40,7 @@ export default class Products extends LightningElement {
             TempQuantity: obj.AvailableQuantity__c
         }))
 
+        // To send only those products whose quantity is available (>=0)
         tempSelected = tempSelected.filter(ev => {
             if (ev.AvailableQuantity >= 0) {
                 return true
@@ -48,20 +49,21 @@ export default class Products extends LightningElement {
 
         if (this.selectedProducts && this.selectedProducts.length > 0) {
             let tempClone = [...this.selectedProducts]
-            tempSelected = tempClone.concat(tempSelected) //Duplicate values present
+            tempSelected = tempClone.concat(tempSelected) // Duplicate values present
             var selectedClone = []
             tempSelected.forEach(element => {
-                let result = tempSelected.filter(ev => element.Id == ev.Id) //count of duplicate
+                let countDuplicates = tempSelected.filter(ev => element.Id == ev.Id) // Count of duplicates
                 let isPresent = selectedClone.some(ev => element.Id == ev.Id)
 
-                if (result.length > 1 && !isPresent) {
-                    element.Quantity = result[0].Quantity + result[1].Quantity;
+                if (countDuplicates.length > 1 && !isPresent) {
+                    element.Quantity = countDuplicates[0].Quantity + countDuplicates[1].Quantity;
                     element.AvailableQuantity = element.TempQuantity - element.Quantity
                     element.LineTotal = element.Quantity * element.Price
                     selectedClone.push(element)
-                } else if (result.length == 1 && !isPresent) {
+                } else if (countDuplicates.length == 1 && !isPresent) {
                     selectedClone.push(element)
                 }
+
             })
             this.selectedProducts = selectedClone
             this.updateTotalOrder()
@@ -76,7 +78,7 @@ export default class Products extends LightningElement {
         this.invoiceStage = true;
     }
 
-    updateProductHandler(event) {
+    updatePageHandler(event) {
         this.visibleProducts = [...event.detail.records];
     }
 
@@ -93,7 +95,7 @@ export default class Products extends LightningElement {
         this.products.data = clone
     }
 
-    deleteHandler(event) {
+    removeHandler(event) {
         var row = event.detail.record
         this.selectedProducts = event.detail.selectedProducts
 
@@ -109,13 +111,13 @@ export default class Products extends LightningElement {
     }
 
     updateTotalOrder() {
-        let temp = JSON.parse(JSON.stringify(this.products.data))
-        temp.forEach(element => {
+        let clone = JSON.parse(JSON.stringify(this.products.data))
+        clone.forEach(element => {
             var result = this.selectedProducts.filter(e => e.Id === element.Id)[0]
             if (result) {
                 element.AvailableQuantity__c = result.AvailableQuantity
             }
         })
-        this.products.data = temp
+        this.products.data = clone
     }
 }

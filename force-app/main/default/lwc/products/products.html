@@ -5,17 +5,20 @@
             <lightning-button variant="brand" label="Add to Cart" onclick={addToCart}> </lightning-button>
         </div>
 
-        <lightning-input value={searchKey} type="search" onchange={searchProducts} class="slds-m-bottom_small"
-            placeholder="Start typing...">
-        </lightning-input>
-
         <lightning-card title="Available Products" icon-name="standard:account" if:true={products.data}>
+            <div class="slds-m-around_medium">
+                <lightning-input value={searchKey} type="search" onchange={searchProducts} class="slds-m-bottom_small"
+                    placeholder="Search products...">
+                </lightning-input>
+            </div>
+
             <div class="slds-m-around_medium">
                 <lightning-datatable key-field="Id" data={visibleProducts} columns={productColumns}>
                 </lightning-datatable>
             </div>
+
             <div slot="footer" class="slds-var-m-vertical_medium">
-                <c-pagination records={products.data} onupdate={updateProductHandler} record-size="10"
+                <c-pagination records={products.data} onupdatepage={updatePageHandler} record-size="10"
                     if:true={products}>
                 </c-pagination>
             </div>
@@ -23,7 +26,8 @@
 
         <br>
     </div>
+
     <c-cart if:true={selectedProducts} cart-products={selectedProducts} oninvoicestagereached={activateInvoiceStage}
-        onupdate={updateHandler} onremove={deleteHandler}>
+        onupdate={updateHandler} onremove={removeHandler}>
     </c-cart>
 </template>
