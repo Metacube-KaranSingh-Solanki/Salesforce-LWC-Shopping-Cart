@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
-import insertOrder from '@salesforce/apex/ShoppingCartController.insertOrder';
+import placeOrder from '@salesforce/apex/ShoppingCartController.placeOrder';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class Invoice extends LightningElement {
@@ -20,7 +20,7 @@ export default class Invoice extends LightningElement {
     ];
 
     placeOrder() {
-        insertOrder({
+        placeOrder({
             productsString: JSON.stringify(this.invoiceProducts)
         })
             .then(result => {

@@ -1,5 +1,4 @@
 import { LightningElement, wire, track } from 'lwc';
-
 import searchProductsByKey from '@salesforce/apex/ShoppingCartController.searchProductsByKey';
 
 export default class Products extends LightningElement {

@@ -1,11 +1,10 @@
 import { LightningElement, wire, track } from 'lwc';
-
-import getOrders from '@salesforce/apex/ShoppingCartController.getOrders';
+import getPurchaseOrders from '@salesforce/apex/ShoppingCartController.getPurchaseOrders';
 
 export default class PurchaseOrder extends LightningElement {
     @track showProduct = false;
 
-    @wire(getOrders) orders;
+    @wire(getPurchaseOrders) orders;
 
     orderColumns = [
         { label: 'PO Id', fieldName: 'Name' },
